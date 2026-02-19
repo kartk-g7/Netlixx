@@ -1,54 +1,28 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { AuthProvider, useAuth } from "./context/AuthContext";
+import { AuthProvider } from "./context/AuthContext";
 import Dashboard from "./pages/Dashboard";
 import LandingPage from "./pages/LandingPage";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function AppRoutes() {
-  const { currentUser } = useAuth();
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-  useEffect(() => {
-    // Check localStorage or auth context for user persistence
-    const storedUser = localStorage.getItem("user");
-    if (currentUser || storedUser) {
-      setIsAuthenticated(true);
-    } else {
-      setIsAuthenticated(false);
-    }
-  }, [currentUser]);
-
-  const handleLoginSuccess = () => {
-    setIsAuthenticated(true);
-    localStorage.setItem("user", "true"); // Simple persistence flag for demo, real validation in context
-  };
-
   return (
     <Routes>
-      <Route
-        path="/"
-        element={
-          isAuthenticated ? (
-            <Navigate to="/dashboard" />
-          ) : (
-            <LandingPage onLogin={handleLoginSuccess} />
-          )
-        }
-      />
-
+      <Route path="/" element={<LandingPage />} />
+      <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
       <Route
         path="/dashboard"
         element={
-          isAuthenticated ? (
+          <ProtectedRoute>
             <Dashboard />
-          ) : (
-            <Navigate to="/" />
-          )
+          </ProtectedRoute>
         }
       />
-
-      <Route path="*" element={<Navigate to="/" />} />
+      <Route path="*" element={<Navigate to="/login" />} />
     </Routes>
   );
 }
